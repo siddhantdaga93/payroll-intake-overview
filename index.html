@@ -1,0 +1,564 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Payroll intake: how it works</title>
+<meta name="description" content="Drop a week of contractor certified payrolls. Get back a checked labor utilization workbook, without retyping a single form.">
+<meta property="og:title" content="Payroll intake: certified payrolls, read and checked">
+<meta property="og:description" content="Drop a week of contractor payrolls. Get back a checked labor utilization workbook, without retyping a single form.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="og.png">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%231F5A45'/%3E%3Cpath d='M10 7h9l5 5v13a1 1 0 0 1-1 1H10a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1z' fill='%23fff'/%3E%3Cpath d='m12.5 18 2.5 2.5 5-5' fill='none' stroke='%231F5A45' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f5f6f4; --surface: #ffffff; --rule: #dce0dc; --ink: #18201c; --muted: #5d6660;
+    --ledger: #1f5a45; --tint: #eef3f0;
+    --ok: #2e7550; --ok-bg: #e7f2ec; --review: #8a5a00; --review-bg: #fbf2de;
+    --manual: #4750a0; --manual-bg: #eef0fa;
+    --radius: 14px;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 400 17px/1.55 "Public Sans", ui-sans-serif, system-ui, sans-serif;
+  }
+  a { color: inherit; }
+  .wrap { width: min(1120px, 100% - 40px); margin: 0 auto; }
+  .num { font-variant-numeric: tabular-nums; }
+
+  /* ---------- Nav ---------- */
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 22px 0; }
+  .brand { display: flex; align-items: center; gap: 10px; font-weight: 600; font-size: 17px; text-decoration: none; }
+  .brand-mark { width: 28px; height: 28px; border-radius: 8px; background: var(--ledger); display: grid; place-items: center; }
+  .nav-links { display: flex; gap: 10px; }
+
+  .btn {
+    display: inline-flex; align-items: center; gap: 8px; height: 44px; padding: 0 20px; border-radius: 10px;
+    font: 600 15px/1 inherit; font-family: inherit; text-decoration: none; border: 1px solid transparent;
+    transition: transform .15s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover { transform: translateY(-1px); }
+  .btn:focus-visible { outline: 2px solid var(--ledger); outline-offset: 2px; }
+  .btn-primary { background: var(--ledger); color: #fff; }
+  .btn-primary:hover { background: #184a39; }
+  .btn-quiet { background: var(--surface); border-color: var(--rule); color: var(--ink); }
+  .btn-quiet:hover { border-color: #c4cbc5; }
+  .btn-small { height: 38px; padding: 0 14px; font-size: 14px; }
+
+  /* ---------- Hero ---------- */
+  .hero { text-align: center; padding: 56px 0 24px; }
+  h1, h2 { text-wrap: balance; }
+  .hero h1 { font-size: clamp(36px, 5.2vw, 60px); line-height: 1.06; letter-spacing: -0.03em; margin: 0 auto; max-width: 820px; font-weight: 700; }
+  .hero p.lede { font-size: clamp(18px, 2vw, 21px); color: var(--muted); max-width: 640px; margin: 22px auto 32px; }
+  .hero .ctas { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+
+  /* The whole workflow at a glance */
+  .flow {
+    margin: 56px auto 0; max-width: 980px; display: grid; grid-template-columns: repeat(4, 1fr); gap: 0;
+    background: var(--surface); border: 1px solid var(--rule); border-radius: 20px; padding: 34px 26px;
+    position: relative;
+  }
+  .flow-step { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 12px; padding: 0 10px; }
+  .flow-icon {
+    width: 64px; height: 64px; border-radius: 16px; display: grid; place-items: center;
+    background: var(--paper); border: 1px solid var(--rule); color: var(--muted);
+    animation: node 8s infinite; position: relative; z-index: 1;
+  }
+  .flow-step:nth-child(2) .flow-icon { animation-delay: 2s; }
+  .flow-step:nth-child(3) .flow-icon { animation-delay: 4s; }
+  .flow-step:nth-child(4) .flow-icon { animation-delay: 6s; }
+  @keyframes node {
+    0% { background: var(--paper); border-color: var(--rule); color: var(--muted); transform: none; }
+    6%, 22% { background: var(--tint); border-color: var(--ledger); color: var(--ledger); transform: translateY(-3px); box-shadow: 0 10px 24px -12px rgba(31,90,69,.5); }
+    30%, 100% { background: var(--paper); border-color: var(--rule); color: var(--muted); transform: none; box-shadow: none; }
+  }
+  .flow-step b { font-size: 16px; }
+  .flow-step span { font-size: 14px; color: var(--muted); line-height: 1.4; }
+  .flow-link {
+    position: absolute; top: 32px; left: calc(50% + 44px); width: calc(100% - 88px); height: 2px;
+    background: var(--rule); overflow: hidden; border-radius: 2px;
+  }
+  .flow-link::after {
+    content: ""; position: absolute; inset: 0; width: 40%;
+    background: linear-gradient(90deg, transparent, var(--ledger), transparent);
+    transform: translateX(-120%); animation: pulse 8s infinite;
+  }
+  .flow-step:nth-child(1) .flow-link::after { animation-delay: .9s; }
+  .flow-step:nth-child(2) .flow-link::after { animation-delay: 2.9s; }
+  .flow-step:nth-child(3) .flow-link::after { animation-delay: 4.9s; }
+  @keyframes pulse { 0% { transform: translateX(-120%); } 14%, 100% { transform: translateX(280%); } }
+
+  /* ---------- Steps ---------- */
+  section.step { display: grid; grid-template-columns: 1fr 1.25fr; gap: 56px; align-items: center; padding: 72px 0; border-top: 1px solid var(--rule); }
+  section.step.flip { grid-template-columns: 1.25fr 1fr; }
+  section.step.flip .copy { order: 2; }
+  .step-no { display: inline-grid; place-items: center; width: 34px; height: 34px; border-radius: 50%; background: var(--ledger); color: #fff; font-weight: 600; font-size: 15px; }
+  .copy h2 { font-size: clamp(28px, 3.2vw, 38px); line-height: 1.12; letter-spacing: -0.02em; margin: 16px 0 14px; font-weight: 700; }
+  .copy p { color: var(--muted); margin: 0 0 20px; font-size: 18px; }
+  .copy ul { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+  .copy li { display: flex; gap: 10px; align-items: flex-start; font-size: 16px; }
+  .copy li svg { flex: none; margin-top: 3px; color: var(--ok); }
+
+  .stage {
+    position: relative; background: var(--surface); border: 1px solid var(--rule); border-radius: 20px;
+    padding: 28px; min-height: 380px; overflow: hidden;
+    box-shadow: 0 30px 60px -40px rgba(24,32,28,.35);
+  }
+  .stage:not(.play) *, .stage:not(.play) *::before, .stage:not(.play) *::after { animation-play-state: paused !important; }
+  .chrome { display: flex; gap: 6px; margin: -12px 0 18px -6px; }
+  .chrome i { width: 10px; height: 10px; border-radius: 50%; background: var(--rule); }
+
+  /* Shared bits of mock UI */
+  .pill { display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px; border-radius: 7px; font-size: 13px; font-weight: 500; white-space: nowrap; }
+  .pill.ok { background: var(--ok-bg); color: var(--ok); }
+  .pill.review { background: var(--review-bg); color: var(--review); }
+  .pill.manual { background: var(--manual-bg); color: var(--manual); }
+  .mute { color: var(--muted); }
+  .file-ico { flex: none; width: 22px; height: 26px; }
+
+  /* Step 1: drop */
+  .s1 .box {
+    border: 2px dashed var(--rule); border-radius: 14px; height: 150px; display: grid; place-items: center; text-align: center;
+    animation: boxon 9s infinite;
+  }
+  .s1 .box b { display: block; font-size: 16px; margin-top: 8px; }
+  .s1 .box span { font-size: 13px; color: var(--muted); }
+  @keyframes boxon {
+    0%, 6% { border-color: var(--rule); background: var(--surface); }
+    10%, 26% { border-color: var(--ledger); background: var(--tint); }
+    32%, 100% { border-color: var(--rule); background: var(--surface); }
+  }
+  .s1 .fly {
+    position: absolute; left: 50%; top: 90px; display: flex; align-items: center; gap: 8px; padding: 8px 12px;
+    background: #fff; border: 1px solid var(--rule); border-radius: 10px; font-size: 13px; font-weight: 500;
+    box-shadow: 0 12px 30px -14px rgba(24,32,28,.45); opacity: 0; white-space: nowrap;
+    animation: fly 9s infinite;
+  }
+  .s1 .fly:nth-of-type(2) { animation-delay: .22s; } .s1 .fly:nth-of-type(3) { animation-delay: .44s; }
+  .s1 .fly:nth-of-type(4) { animation-delay: .66s; } .s1 .fly:nth-of-type(5) { animation-delay: .88s; }
+  @keyframes fly {
+    0% { transform: translate(-420px, 150px) rotate(-8deg); opacity: 0; }
+    5% { opacity: 1; }
+    20% { transform: translate(-50%, -10px) rotate(-2deg) scale(.96); opacity: 1; }
+    25%, 100% { transform: translate(-50%, -10px) scale(.6); opacity: 0; }
+  }
+  .s1 .queue { margin-top: 16px; display: grid; gap: 0; }
+  .s1 .q {
+    display: flex; align-items: center; gap: 10px; padding: 8px 2px; border-bottom: 1px solid var(--rule); font-size: 14px;
+    opacity: 0; animation: rowin 9s infinite;
+  }
+  .s1 .q em { margin-left: auto; font-style: normal; font-size: 13px; color: var(--muted); }
+  .s1 .q:nth-child(1) { animation-delay: 2.5s; } .s1 .q:nth-child(2) { animation-delay: 2.7s; }
+  .s1 .q:nth-child(3) { animation-delay: 2.9s; } .s1 .q:nth-child(4) { animation-delay: 3.1s; }
+  .s1 .q:nth-child(5) { animation-delay: 3.3s; }
+  @keyframes rowin {
+    0% { opacity: 0; transform: translateY(8px); }
+    4%, 62% { opacity: 1; transform: none; }
+    70%, 100% { opacity: 0; transform: none; }
+  }
+  .s1 .go { margin-top: 16px; display: flex; align-items: center; gap: 12px; opacity: 0; animation: rowin 9s infinite; animation-delay: 3.6s; }
+  .s1 .go .fake-btn { background: var(--ledger); color: #fff; border-radius: 9px; padding: 9px 16px; font-size: 14px; font-weight: 600; animation: glow 9s infinite; animation-delay: 3.6s; }
+  @keyframes glow { 0%, 10% { box-shadow: 0 0 0 0 rgba(31,90,69,.0); } 18% { box-shadow: 0 0 0 8px rgba(31,90,69,.18); } 28%, 100% { box-shadow: 0 0 0 0 rgba(31,90,69,0); } }
+
+  /* Step 2: read and check */
+  .s2 table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .s2 th { text-align: left; font-weight: 500; color: var(--muted); padding: 0 8px 10px; border-bottom: 1px solid var(--rule); font-size: 13px; }
+  .s2 td { padding: 13px 8px; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .s2 td.name { font-weight: 500; }
+  .s2 .id { opacity: 0; animation: ident 8s infinite; }
+  .s2 .status { position: relative; width: 150px; height: 26px; }
+  .s2 .status > * { position: absolute; left: 0; top: 50%; transform: translateY(-50%); opacity: 0; }
+  .s2 .st-read { animation: st-read 8s infinite; }
+  .s2 .st-check { animation: st-check 8s infinite; }
+  .s2 .st-final { animation: st-final 8s infinite; }
+  .s2 tr:nth-child(2) *, .s2 tr:nth-child(2) .status > * { animation-delay: .5s; }
+  .s2 tr:nth-child(3) *, .s2 tr:nth-child(3) .status > * { animation-delay: 1s; }
+  .s2 tr:nth-child(4) *, .s2 tr:nth-child(4) .status > * { animation-delay: 1.5s; }
+  .s2 tr:nth-child(5) *, .s2 tr:nth-child(5) .status > * { animation-delay: 2s; }
+  @keyframes ident { 0%, 18% { opacity: 0; } 24%, 90% { opacity: 1; } 97%, 100% { opacity: 0; } }
+  @keyframes st-read { 0%, 2% { opacity: 0; } 5%, 18% { opacity: 1; } 22%, 100% { opacity: 0; } }
+  @keyframes st-check { 0%, 20% { opacity: 0; } 24%, 36% { opacity: 1; } 40%, 100% { opacity: 0; } }
+  @keyframes st-final { 0%, 38% { opacity: 0; transform: translateY(-50%) scale(.9); } 44%, 90% { opacity: 1; transform: translateY(-50%); } 97%, 100% { opacity: 0; } }
+  .spin { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--rule); border-top-color: var(--ledger); animation: spin .8s linear infinite !important; display: inline-block; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .stagemsg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--muted); }
+
+  /* Step 3: catch and fix */
+  .s3 .doc-head { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px; }
+  .s3 .doc-head b { font-size: 16px; }
+  .s3 .badge { position: relative; display: inline-grid; justify-items: end; }
+  .s3 .badge > * { grid-area: 1 / 1; }
+  .s3 .b-before { animation: warnswap 10s infinite; }
+  .s3 .b-after { opacity: 0; animation: tickin 10s infinite; }
+  .s3 table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .s3 th { font-weight: 500; color: var(--muted); font-size: 13px; padding: 0 8px 10px; text-align: right; border-bottom: 1px solid var(--rule); }
+  .s3 th:first-child, .s3 td:first-child { text-align: left; }
+  .s3 td { padding: 13px 8px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .s3 .cell { position: relative; display: inline-flex; align-items: center; justify-content: flex-end; gap: 6px; padding: 4px 10px; border-radius: 7px; min-width: 120px; font-variant-numeric: tabular-nums; animation: cellfix 10s infinite; }
+  @keyframes cellfix { 0%, 55% { background: var(--review-bg); box-shadow: inset 0 0 0 1px rgba(138,90,0,.25); } 60%, 92% { background: var(--ok-bg); box-shadow: inset 0 0 0 1px rgba(46,117,80,.3); } 100% { background: var(--review-bg); } }
+  .s3 .old, .s3 .new { display: inline-block; overflow: hidden; white-space: nowrap; }
+  .s3 .old { animation: oldout 10s infinite; }
+  .s3 .new { width: 0; animation: typein 10s infinite; }
+  @keyframes oldout { 0%, 46% { width: 8.4ch; opacity: 1; } 49%, 92% { width: 0; opacity: 0; } 100% { width: 8.4ch; opacity: 1; } }
+  @keyframes typein { 0%, 49% { width: 0; } 56%, 92% { width: 8.4ch; } 100% { width: 0; } }
+  .s3 .warn { color: var(--review); animation: warnswap 10s infinite; }
+  .s3 .tick { color: var(--ok); position: absolute; left: 8px; opacity: 0; animation: tickin 10s infinite; }
+  @keyframes warnswap { 0%, 55% { opacity: 1; } 58%, 92% { opacity: 0; } 100% { opacity: 1; } }
+  @keyframes tickin { 0%, 57% { opacity: 0; } 60%, 92% { opacity: 1; } 100% { opacity: 0; } }
+
+  .s3 .callout {
+    position: absolute; left: 28px; right: 28px; bottom: 28px; border-radius: 12px; padding: 14px 16px; font-size: 15px;
+    background: var(--review-bg); color: #3d2b00; border: 1px solid rgba(138,90,0,.2);
+    opacity: 0; animation: callout 10s infinite;
+  }
+  .s3 .callout b { color: var(--review); }
+  .s3 .callout .eq { display: block; margin-top: 4px; font-weight: 600; color: var(--ink); }
+  @keyframes callout { 0%, 8% { opacity: 0; transform: translateY(10px); } 14%, 56% { opacity: 1; transform: none; } 60%, 100% { opacity: 0; } }
+  .s3 .passed {
+    position: absolute; left: 28px; right: 28px; bottom: 28px; border-radius: 12px; padding: 14px 16px; font-size: 15px;
+    background: var(--ok-bg); color: var(--ok); border: 1px solid rgba(46,117,80,.25); font-weight: 600;
+    display: flex; align-items: center; gap: 10px; opacity: 0; animation: passed 10s infinite;
+  }
+  .s3 .passed small { font-weight: 400; color: #2b4a3a; margin-left: auto; }
+  @keyframes passed { 0%, 60% { opacity: 0; transform: translateY(10px); } 64%, 92% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+  .s3 svg.arrow { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; overflow: visible; }
+  .s3 svg.arrow path { fill: none; stroke: var(--review); stroke-width: 2; stroke-linecap: round; stroke-dasharray: 260; stroke-dashoffset: 260; animation: draw 10s infinite; }
+  .s3 svg.arrow path.head { stroke-dasharray: 30; stroke-dashoffset: 30; animation-name: drawhead; }
+  @keyframes draw { 0%, 12% { stroke-dashoffset: 260; opacity: 1; } 24%, 54% { stroke-dashoffset: 0; opacity: 1; } 58%, 100% { stroke-dashoffset: 0; opacity: 0; } }
+  @keyframes drawhead { 0%, 23% { stroke-dashoffset: 30; opacity: 1; } 27%, 54% { stroke-dashoffset: 0; opacity: 1; } 58%, 100% { opacity: 0; } }
+  .s3 .cursor { position: absolute; width: 22px; height: 22px; opacity: 0; animation: cursor 10s infinite; z-index: 3; }
+  @keyframes cursor {
+    0%, 30% { opacity: 0; transform: translate(0, 60px); }
+    34% { opacity: 1; transform: translate(0, 60px); }
+    42%, 47% { opacity: 1; transform: translate(0, 0); }
+    44% { transform: translate(0, 0) scale(.85); }
+    56% { opacity: 1; transform: translate(26px, 40px); }
+    62%, 100% { opacity: 0; transform: translate(26px, 40px); }
+  }
+
+  /* Step 4: the report */
+  .s4 .rep-head { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+  .s4 .rep-head b { font-size: 16px; }
+  .s4 table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  .s4 th { font-weight: 500; color: var(--muted); font-size: 13px; padding: 0 8px 10px; text-align: right; border-bottom: 1px solid var(--rule); }
+  .s4 th:first-child, .s4 td:first-child { text-align: left; }
+  .s4 td { padding: 11px 8px; text-align: right; border-bottom: 1px solid var(--rule); white-space: nowrap; }
+  .s4 tbody tr { opacity: 0; animation: rowin2 10s infinite; }
+  .s4 tbody tr:nth-child(2) { animation-delay: .25s; } .s4 tbody tr:nth-child(3) { animation-delay: .5s; } .s4 tbody tr:nth-child(4) { animation-delay: .75s; }
+  .s4 tfoot td { font-weight: 600; border-bottom: 0; border-top: 2px solid var(--ink); opacity: 0; animation: rowin2 10s infinite; animation-delay: 1s; }
+  @keyframes rowin2 { 0% { opacity: 0; transform: translateY(6px); } 5%, 88% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; } }
+  .s4 .note {
+    margin-top: 16px; display: flex; gap: 10px; align-items: flex-start; padding: 12px 14px; border-radius: 12px;
+    background: var(--review-bg); color: #3d2b00; font-size: 14px; border: 1px solid rgba(138,90,0,.2);
+    opacity: 0; animation: note 10s infinite;
+  }
+  .s4 .note svg { flex: none; color: var(--review); margin-top: 1px; }
+  @keyframes note { 0%, 18% { opacity: 0; transform: translateY(10px); } 24%, 88% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; } }
+  .s4 .xlsx {
+    width: fit-content; margin: 14px 0 0 auto; display: flex; align-items: center; gap: 10px; padding: 10px 14px 10px 10px;
+    background: #fff; border: 1px solid var(--rule); border-radius: 12px; font-size: 14px; font-weight: 500;
+    box-shadow: 0 16px 34px -16px rgba(24,32,28,.45); opacity: 0; animation: xlsx 10s infinite;
+  }
+  .s4 .xlsx small { display: block; font-weight: 400; color: var(--muted); font-size: 12px; }
+  @keyframes xlsx { 0%, 40% { opacity: 0; transform: translateY(-24px) scale(.96); } 48%, 88% { opacity: 1; transform: none; } 96%, 100% { opacity: 0; } }
+
+  /* ---------- Checks + trust ---------- */
+  .band { padding: 80px 0; border-top: 1px solid var(--rule); }
+  .band h2 { font-size: clamp(28px, 3.2vw, 38px); letter-spacing: -0.02em; line-height: 1.12; margin: 0 0 12px; font-weight: 700; text-align: center; }
+  .band > .wrap > p { color: var(--muted); font-size: 18px; text-align: center; max-width: 620px; margin: 0 auto 40px; }
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .card { background: var(--surface); border: 1px solid var(--rule); border-radius: var(--radius); padding: 22px; }
+  .card .ico { width: 38px; height: 38px; border-radius: 10px; background: var(--tint); color: var(--ledger); display: grid; place-items: center; margin-bottom: 14px; }
+  .card b { display: block; font-size: 16px; margin-bottom: 4px; }
+  .card span { font-size: 15px; color: var(--muted); }
+
+  .final { text-align: center; padding: 88px 0 96px; border-top: 1px solid var(--rule); }
+  .final h2 { font-size: clamp(30px, 3.6vw, 44px); letter-spacing: -0.025em; margin: 0 0 14px; font-weight: 700; }
+  .final p { color: var(--muted); font-size: 18px; margin: 0 0 30px; }
+  footer { padding: 26px 0 40px; color: var(--muted); font-size: 14px; text-align: center; }
+
+  /* ---------- Small screens ---------- */
+  @media (max-width: 880px) {
+    section.step, section.step.flip { grid-template-columns: 1fr; gap: 32px; padding: 56px 0; }
+    section.step.flip .copy { order: 0; }
+    .flow { grid-template-columns: 1fr 1fr; row-gap: 30px; }
+    .flow-link { display: none; }
+    .grid { grid-template-columns: 1fr; }
+    .nav-links .btn-quiet { display: none; }
+    .stage { padding: 20px; min-height: 340px; }
+    .stage.s3 { min-height: 430px; }
+    .s3 svg.arrow { display: none; }
+    .s3 .callout, .s3 .passed { left: 20px; right: 20px; bottom: 20px; }
+    .s2 .hide-sm, .s3 .hide-sm, .s4 .hide-sm { display: none; }
+  }
+
+  /* Reduced motion: every stage shows its finished state, nothing moves. */
+  @media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after { animation: none !important; transition: none !important; }
+    .s1 .q, .s1 .go, .s2 .id, .s2 .st-final, .s4 tbody tr, .s4 tfoot td, .s4 .note, .s4 .xlsx, .s3 .passed, .s3 .tick, .s3 .b-after { opacity: 1 !important; }
+    .s1 .fly, .s2 .st-read, .s2 .st-check, .s3 .callout, .s3 .warn, .s3 .cursor, .s3 svg.arrow, .s3 .b-before { display: none !important; }
+    .s3 .old { display: none; } .s3 .new { width: auto !important; }
+    .s3 .cell { background: var(--ok-bg) !important; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="pdf" viewBox="0 0 22 26"><path d="M3 1h11l7 7v16a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="#fff" stroke="#1F5A45" stroke-width="1.6"/><path d="M14 1v7h7" fill="none" stroke="#1F5A45" stroke-width="1.6"/><text x="11" y="20" font-size="6" font-weight="700" fill="#1F5A45" text-anchor="middle" font-family="Public Sans, sans-serif">PDF</text></symbol>
+  <symbol id="check" viewBox="0 0 18 18"><circle cx="9" cy="9" r="8" fill="currentColor" opacity=".14"/><path d="m5.5 9.2 2.3 2.3 4.7-4.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="warn" viewBox="0 0 18 18"><path d="M9 2.2 16.4 15H1.6z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/><path d="M9 7v3.6M9 12.6v.2" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></symbol>
+</svg>
+
+<header class="wrap">
+  <nav aria-label="Main">
+    <a class="brand" href="#top">
+      <span class="brand-mark" aria-hidden="true"><svg width="16" height="18" viewBox="0 0 16 18"><path d="M2 1h8l4 4v11a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1z" fill="#fff"/><path d="m4.5 10.5 2.2 2.2 4.4-4.5" fill="none" stroke="#1F5A45" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+      Payroll intake
+    </a>
+    <div class="nav-links">
+      <a class="btn btn-quiet btn-small" data-link="video" href="#">Watch the demo</a>
+      <a class="btn btn-primary btn-small" data-link="demo" href="#">Try it</a>
+    </div>
+  </nav>
+</header>
+
+<main id="top">
+  <div class="wrap hero">
+    <h1>Certified payrolls, read and checked.</h1>
+    <p class="lede">Drop a week of contractor payrolls. Get back a checked labor utilization workbook, without retyping a single form.</p>
+    <div class="ctas">
+      <a class="btn btn-primary" data-link="demo" href="#">Try it with sample payrolls</a>
+      <a class="btn btn-quiet" data-link="video" href="#">
+        <svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="7.2" fill="none" stroke="currentColor" stroke-width="1.4"/><path d="M6.5 5.2v5.6L11 8z" fill="currentColor"/></svg>
+        Watch the 60-second demo
+      </a>
+    </div>
+
+    <div class="flow" aria-label="The workflow in four steps">
+      <div class="flow-step">
+        <div class="flow-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3 3 3-3"/></svg></div>
+        <b>Drop payrolls</b><span>Any format, any contractor</span>
+        <i class="flow-link"></i>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
+        <b>Read every figure</b><span>Hours, rates, pay, deductions</span>
+        <i class="flow-link"></i>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3 4 6v6c0 5 3.4 8 8 9 4.6-1 8-4 8-9V6z"/><path d="m8.5 12 2.5 2.5 4.5-5"/></svg></div>
+        <b>Check the math</b><span>Flags what doesn't add up</span>
+        <i class="flow-link"></i>
+      </div>
+      <div class="flow-step">
+        <div class="flow-icon" aria-hidden="true"><svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg></div>
+        <b>Send the workbook</b><span>Labor utilization by contractor</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Step 1 -->
+  <section class="wrap step" aria-labelledby="s1">
+    <div class="copy">
+      <span class="step-no">1</span>
+      <h2 id="s1">Drop a week of payrolls. Any format.</h2>
+      <p>Contractors send what they send. Drag them all in at once; nothing is read until you say go.</p>
+      <ul>
+        <li><svg width="18" height="18"><use href="#check"/></svg>WH-347, 2025 and 2008 editions</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Payroll software exports and scanned copies</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Handwritten forms are spotted and sent to a person</li>
+      </ul>
+    </div>
+    <div class="stage s1" aria-hidden="true">
+      <div class="chrome"><i></i><i></i><i></i></div>
+      <div class="box"><div><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#1F5A45" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5M12 18v-6M9 15l3-3 3 3"/></svg><b>Drop payroll PDFs here</b><span>Add as many as you like</span></div></div>
+      <div class="fly"><svg class="file-ico"><use href="#pdf"/></svg>ABC Contractors · payroll 1.pdf</div>
+      <div class="fly"><svg class="file-ico"><use href="#pdf"/></svg>Kestrel Electric · payroll 7.pdf</div>
+      <div class="fly"><svg class="file-ico"><use href="#pdf"/></svg>Delta Mechanical · export.pdf</div>
+      <div class="fly"><svg class="file-ico"><use href="#pdf"/></svg>Northgate Plumbing · scan.pdf</div>
+      <div class="fly"><svg class="file-ico"><use href="#pdf"/></svg>Pinecrest Framing · payroll 2.pdf</div>
+      <div class="queue">
+        <div class="q"><svg class="file-ico"><use href="#pdf"/></svg>ABC Contractors · payroll 1.pdf<em class="num">46 KB</em></div>
+        <div class="q"><svg class="file-ico"><use href="#pdf"/></svg>Kestrel Electric · payroll 7.pdf<em class="num">185 KB</em></div>
+        <div class="q"><svg class="file-ico"><use href="#pdf"/></svg>Delta Mechanical · export.pdf<em class="num">158 KB</em></div>
+        <div class="q"><svg class="file-ico"><use href="#pdf"/></svg>Northgate Plumbing · scan.pdf<em class="num">279 KB</em></div>
+        <div class="q"><svg class="file-ico"><use href="#pdf"/></svg>Pinecrest Framing · payroll 2.pdf<em class="num">282 KB</em></div>
+      </div>
+      <div class="go"><span class="fake-btn">Read 5 payrolls</span><span class="mute" style="font-size:13px">5 files ready</span></div>
+    </div>
+  </section>
+
+  <!-- Step 2 -->
+  <section class="wrap step flip" aria-labelledby="s2">
+    <div class="copy">
+      <span class="step-no">2</span>
+      <h2 id="s2">Every figure is read, then checked against the form.</h2>
+      <p>Each payroll is identified, every worker's hours and pay are read off the page, and the arithmetic is re-done by plain code. Nothing is guessed.</p>
+      <ul>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Clean payrolls are marked ready</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Anything that doesn't add up is flagged, with the reason</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Handwriting goes to manual entry, never to a guess</li>
+      </ul>
+    </div>
+    <div class="stage s2" aria-hidden="true">
+      <div class="chrome"><i></i><i></i><i></i></div>
+      <table>
+        <thead><tr><th>Contractor</th><th class="hide-sm">Form</th><th class="hide-sm">Workers</th><th>Status</th></tr></thead>
+        <tbody>
+          <tr><td class="name">ABC Contractors</td><td class="hide-sm"><span class="id">WH-347 (2025)</span></td><td class="hide-sm num"><span class="id">2</span></td>
+            <td><div class="status"><span class="stagemsg st-read"><i class="spin"></i>Reading</span><span class="stagemsg st-check"><i class="spin"></i>Checking</span><span class="pill ok st-final"><svg width="14" height="14"><use href="#check"/></svg>Ready</span></div></td></tr>
+          <tr><td class="name">ABC Contractors (resent)</td><td class="hide-sm"><span class="id">WH-347 (2025)</span></td><td class="hide-sm num"><span class="id">2</span></td>
+            <td><div class="status"><span class="stagemsg st-read"><i class="spin"></i>Reading</span><span class="stagemsg st-check"><i class="spin"></i>Checking</span><span class="pill review st-final"><svg width="14" height="14"><use href="#warn"/></svg>1 to review</span></div></td></tr>
+          <tr><td class="name">Kestrel Electric</td><td class="hide-sm"><span class="id">WH-347 (2008)</span></td><td class="hide-sm num"><span class="id">5</span></td>
+            <td><div class="status"><span class="stagemsg st-read"><i class="spin"></i>Reading</span><span class="stagemsg st-check"><i class="spin"></i>Checking</span><span class="pill ok st-final"><svg width="14" height="14"><use href="#check"/></svg>Ready</span></div></td></tr>
+          <tr><td class="name">Delta Mechanical</td><td class="hide-sm"><span class="id">Software export</span></td><td class="hide-sm num"><span class="id">12</span></td>
+            <td><div class="status"><span class="stagemsg st-read"><i class="spin"></i>Reading</span><span class="stagemsg st-check"><i class="spin"></i>Checking</span><span class="pill ok st-final"><svg width="14" height="14"><use href="#check"/></svg>Ready</span></div></td></tr>
+          <tr><td class="name">Pinecrest Framing</td><td class="hide-sm"><span class="id">WH-347 (2025)</span></td><td class="hide-sm num"><span class="id">–</span></td>
+            <td><div class="status"><span class="stagemsg st-read"><i class="spin"></i>Reading</span><span class="stagemsg st-check"><i class="spin"></i>Checking</span><span class="pill manual st-final">✎ Manual entry</span></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Step 3 -->
+  <section class="wrap step" aria-labelledby="s3">
+    <div class="copy">
+      <span class="step-no">3</span>
+      <h2 id="s3">See exactly what's wrong. Fix it in place.</h2>
+      <p>A flag isn't "low confidence". It's the sum that failed, worked out in front of you, beside the original form.</p>
+      <ul>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Hours, pay, deductions and net pay all re-added</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Correct a figure and every check runs again</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Every edit keeps the original value it replaced</li>
+      </ul>
+    </div>
+    <div class="stage s3" aria-hidden="true">
+      <div class="chrome"><i></i><i></i><i></i></div>
+      <div class="doc-head"><b>ABC Contractors · week ending Apr 11</b><span class="badge hide-sm"><span class="pill review b-before"><svg width="14" height="14"><use href="#warn"/></svg>1 to review</span><span class="pill ok b-after"><svg width="14" height="14"><use href="#check"/></svg>Ready</span></span></div>
+      <table>
+        <thead><tr><th>Worker</th><th class="hide-sm">Hours</th><th class="hide-sm">Rate</th><th>Gross</th></tr></thead>
+        <tbody>
+          <tr><td><b style="font-weight:500">Steven S Boyer</b></td><td class="num hide-sm">40.00</td><td class="num hide-sm">40.00</td>
+            <td><span class="cell num" id="gross"><svg class="warn" width="15" height="15"><use href="#warn"/></svg><svg class="tick" width="15" height="15"><use href="#check"/></svg><span class="old">1,900.00</span><span class="new">1,800.00</span></span></td></tr>
+          <tr><td><b style="font-weight:500">Bob Clark</b></td><td class="num hide-sm">40.00</td><td class="num hide-sm">60.00</td><td class="num" style="padding-right:16px">2,800.00</td></tr>
+        </tbody>
+      </table>
+      <svg class="arrow" viewBox="0 0 600 380" preserveAspectRatio="none"><path d="M562 262 C 592 236, 590 194, 548 168"/><path class="head" d="M552 184 L546 167 L563 167"/></svg>
+      <svg class="cursor" viewBox="0 0 22 22" style="right:64px; top:140px"><path d="M4 2l13 8.4-5.7 1.1 3.5 7-2.6 1.3-3.5-7L4 17z" fill="#18201C" stroke="#fff" stroke-width="1.3" stroke-linejoin="round"/></svg>
+      <div class="callout"><b>Gross doesn't add up.</b> Printed 1,900.00, but<span class="eq num">40.00 h × 40.00 + 200.00 in lieu of fringe = 1,800.00</span></div>
+      <div class="passed"><svg width="20" height="20"><use href="#check"/></svg>Every check passed<small>Edited from 1,900.00</small></div>
+    </div>
+  </section>
+
+  <!-- Step 4 -->
+  <section class="wrap step flip" aria-labelledby="s4">
+    <div class="copy">
+      <span class="step-no">4</span>
+      <h2 id="s4">A labor utilization workbook, ready to send.</h2>
+      <p>Hours roll up by contractor and month, and the problems a reviewer would miss are listed before the file goes out.</p>
+      <ul>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Duplicate filings and missing payroll numbers called out</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Every figure traces back to a worker and a payroll</li>
+        <li><svg width="18" height="18"><use href="#check"/></svg>Excel with live formulas, so totals hold after an edit</li>
+      </ul>
+    </div>
+    <div class="stage s4" aria-hidden="true">
+      <div class="chrome"><i></i><i></i><i></i></div>
+      <div class="rep-head"><b>Labor utilization by contractor</b><span class="mute" style="font-size:13px">Every week on file</span></div>
+      <table>
+        <thead><tr><th>Contractor</th><th class="hide-sm">Month</th><th class="hide-sm">Workers</th><th>Hours</th></tr></thead>
+        <tbody>
+          <tr><td>ABC Contractors</td><td class="hide-sm">April 2025</td><td class="num hide-sm">2</td><td class="num">160.00</td></tr>
+          <tr><td>Delta Mechanical</td><td class="hide-sm">May 2025</td><td class="num hide-sm">12</td><td class="num">471.50</td></tr>
+          <tr><td>Kestrel Electric</td><td class="hide-sm">March 2025</td><td class="num hide-sm">5</td><td class="num">200.00</td></tr>
+          <tr><td>Northgate Plumbing</td><td class="hide-sm">April 2025</td><td class="num hide-sm">4</td><td class="num">156.00</td></tr>
+        </tbody>
+        <tfoot><tr><td>All contractors</td><td class="hide-sm"></td><td class="num hide-sm">23</td><td class="num">987.50</td></tr></tfoot>
+      </table>
+      <div class="note"><svg width="17" height="17"><use href="#warn"/></svg><span><b>Before you send this:</b> ABC Contractors filed the week ending Apr 11 twice. Remove the duplicate.</span></div>
+      <div class="xlsx"><svg width="34" height="34" viewBox="0 0 34 34"><rect width="34" height="34" rx="8" fill="#1F7244"/><path d="M11 10l12 14M23 10 11 24" stroke="#fff" stroke-width="2.6" stroke-linecap="round"/></svg><span>labor-utilization.xlsx<small>Workbook downloaded</small></span></div>
+    </div>
+  </section>
+
+  <!-- What it checks -->
+  <section class="band" aria-labelledby="checks">
+    <div class="wrap">
+      <h2 id="checks">The checks your team does by hand, done on every payroll</h2>
+      <p>The AI only reads the form. Every check is plain arithmetic, the same each time, and explained in words when it fails.</p>
+      <div class="grid">
+        <div class="card"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><b>Hours add up</b><span>Daily hours match the weekly total, straight time and overtime, with no impossible days.</span></div>
+        <div class="card"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M12 3v18M17 7.5c0-1.9-2.2-3-5-3s-5 1.1-5 3 2.2 2.7 5 3.2 5 1.4 5 3.3-2.2 3.3-5 3.3-5-1.3-5-3.2"/></svg></div><b>Pay adds up</b><span>Hours × rate plus fringe equals gross; gross minus deductions equals net pay.</span></div>
+        <div class="card"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></svg></div><b>Dates fit the week</b><span>Every day worked falls inside the week being reported.</span></div>
+        <div class="card"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="8" y="8" width="12" height="12" rx="2"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg></div><b>Duplicates caught</b><span>The same week filed twice, or the same worker listed twice, is called out.</span></div>
+        <div class="card"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><b>Nothing missing</b><span>Contractor, project and week ending present; every worker has a name and hours.</span></div>
+        <div class="card"><div class="ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg></div><b>Private by design</b><span>Only the last four digits of a Social Security number are ever kept.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Trust -->
+  <section class="band" aria-labelledby="trust">
+    <div class="wrap">
+      <h2 id="trust">Built for compliance work</h2>
+      <p>Payroll records are sensitive. The demo is built to keep as little as possible for as short a time as possible.</p>
+      <div class="grid">
+        <div class="card"><b>Nothing is stored</b><span>Files are read and discarded. There is no database, and the workbook is built in your browser.</span></div>
+        <div class="card"><b>Never a guess</b><span>Anything not printed on the form stays blank, and handwriting always goes to a person.</span></div>
+        <div class="card"><b>An answer for every number</b><span>Each figure in the report links back to the worker and the payroll it came from.</span></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="wrap final" aria-labelledby="cta">
+    <h2 id="cta">See it read a week of payrolls</h2>
+    <p>Sample payrolls are loaded for you. It takes about a minute.</p>
+    <div class="ctas" style="display:flex;gap:12px;justify-content:center;flex-wrap:wrap">
+      <a class="btn btn-primary" data-link="demo" href="#">Try it with sample payrolls</a>
+      <a class="btn btn-quiet" data-link="video" href="#">Watch the 60-second demo</a>
+    </div>
+  </section>
+</main>
+
+<footer class="wrap">Payroll intake · Davis-Bacon monitoring and labor utilization, without retyping a single form.</footer>
+
+<script>
+  // The other two links. Set once the demo and the video are deployed.
+  const LINKS = { demo: "#", video: "#" };
+  for (const a of document.querySelectorAll("[data-link]")) {
+    const href = LINKS[a.dataset.link];
+    a.href = href;
+    if (href !== "#") { a.target = "_blank"; a.rel = "noopener"; }
+  }
+
+  // Each animation plays only while it is on screen, and starts from the beginning when it arrives.
+  const stages = document.querySelectorAll(".stage");
+  const restart = (stage) => {
+    for (const el of stage.querySelectorAll("*")) {
+      for (const anim of el.getAnimations()) { anim.currentTime = 0; }
+    }
+  };
+  if ("IntersectionObserver" in window) {
+    const seen = new IntersectionObserver((entries) => {
+      for (const entry of entries) {
+        if (entry.isIntersecting) {
+          if (!entry.target.classList.contains("play")) restart(entry.target);
+          entry.target.classList.add("play");
+        } else {
+          entry.target.classList.remove("play");
+        }
+      }
+    }, { threshold: 0.35 });
+    stages.forEach((stage) => seen.observe(stage));
+  } else {
+    stages.forEach((stage) => stage.classList.add("play"));
+  }
+</script>
+</body>
+</html>
